@@ -20,6 +20,7 @@ on:
 
 jobs:
   windows-build:
+    if: false
     runs-on: windows-2022
     timeout-minutes: 120
     steps:
@@ -107,6 +108,7 @@ jobs:
 
 
   windows-arm64-build:
+    if: false
     runs-on: windows-2022
     timeout-minutes: 120
     steps:
@@ -195,6 +197,7 @@ jobs:
 
 
   linux-build:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     steps:
@@ -268,7 +271,7 @@ jobs:
   linux-flatpak-build:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.7
+      image: ghcr.io/bbhtt/flatpak-github-actions:kde-6.7
       options: --privileged
     timeout-minutes: 120
     steps:
@@ -298,10 +301,10 @@ jobs:
       run: flatpak-builder-lint manifest scripts/flatpak/org.duckstation.DuckStation.json
 
     - name: Build Flatpak
-      uses: flathub-infra/flatpak-github-actions/flatpak-builder@23796715b3dfa4c86ddf50cf29c3cc8b3c82dca8
+      uses: bbhtt/flatpak-github-actions/flatpak-builder@master
       with:
         bundle: duckstation-x64.flatpak
-        upload-artifact: false
+        upload-artifact: true
         manifest-path: scripts/flatpak/org.duckstation.DuckStation.json
         arch: x86_64
         build-bundle: true
@@ -312,27 +315,12 @@ jobs:
         restore-cache: true
         cache-key: flatpak-x64-${{ hashFiles('scripts/flatpak/**/*.json') }}
 
-    - name: Push to Flathub stable
-      if: github.ref == 'refs/heads/dev'
-      uses: flathub-infra/flatpak-github-actions/flat-manager@b6c92176b7f578aedd80cac74cd8f0336f618e89
-      with:
-        flat-manager-url: https://hub.flathub.org/
-        repository: stable
-        token: ${{ secrets.FLATHUB_STABLE_TOKEN }}
-        build-log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
     - name: Validate build
       run: |
         flatpak-builder-lint repo repo
 
-    - name: Upload Flatpak
-      uses: actions/upload-artifact@v4.3.3
-      with:
-        name: "linux-flatpak"
-        path: "duckstation-x64.flatpak"
-
-
   macos-build:
+    if: false
     runs-on: macos-14
     timeout-minutes: 120
     steps:
@@ -399,7 +387,7 @@ jobs:
   create-release:
     needs: [windows-build, windows-arm64-build, linux-build, linux-flatpak-build, macos-build]
     runs-on: ubuntu-22.04
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'
+    if: false
     steps:
       - name: Download Artifacts
         uses: actions/download-artifact@v4.1.7

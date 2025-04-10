@@ -1,6 +1,7 @@
 name: 📦 Linux Flatpak
 
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       flathub_publish:
@@ -11,7 +12,6 @@ on:
         required: false
         type: string
         default: "stable"
-  workflow_dispatch:
 
 jobs:
   linux-flatpak-build:
@@ -75,7 +75,7 @@ jobs:
       run: flatpak-builder-lint manifest scripts/packaging/flatpak/org.duckstation.DuckStation.yaml
 
     - name: Build Flatpak
-      uses: flathub-infra/flatpak-github-actions/flatpak-builder@23796715b3dfa4c86ddf50cf29c3cc8b3c82dca8
+      uses: flathub-infra/flatpak-github-actions/flatpak-builder@master
       with:
         bundle: duckstation-${{ matrix.setup.arch }}.flatpak
         upload-artifact: false
@@ -92,24 +92,6 @@ jobs:
     - name: Validate Build
       run: |
         flatpak-builder-lint repo repo
-
-    - name: Push To Flathub Beta
-      if: inputs.flathub_publish && inputs.flathub_branch == 'beta'
-      uses: flathub-infra/flatpak-github-actions/flat-manager@b6c92176b7f578aedd80cac74cd8f0336f618e89
-      with:
-        flat-manager-url: https://hub.flathub.org/
-        repository: stable
-        token: ${{ secrets.FLATHUB_BETA_TOKEN }}
-        build-log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-    - name: Push To Flathub Stable
-      if: inputs.flathub_publish && inputs.flathub_branch == 'stable'
-      uses: flathub-infra/flatpak-github-actions/flat-manager@b6c92176b7f578aedd80cac74cd8f0336f618e89
-      with:
-        flat-manager-url: https://hub.flathub.org/
-        repository: stable
-        token: ${{ secrets.FLATHUB_STABLE_TOKEN }}
-        build-log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     - name: Upload Flatpak
       uses: actions/upload-artifact@v4
